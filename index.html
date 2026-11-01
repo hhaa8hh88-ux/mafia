@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المافيا</title>
+<style>
+  :root{--bg:#0f1220;--card:#181c30;--card2:#20253f;--line:#2c3256;--txt:#eef0ff;--mut:#9aa0c8;--acc:#7c6cff;--red:#ff5a6e;--grn:#3ddc97;--ylw:#ffc857}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;min-height:100vh;padding-bottom:90px}
+  .wrap{max-width:560px;margin:0 auto;padding:14px}
+  h1,h2,h3{margin:0 0 10px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  input,select{width:100%;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;font-family:inherit;margin-bottom:8px}
+  label{display:block;color:var(--mut);font-size:13px;margin:6px 0 4px}
+  button{font-family:inherit;font-size:15px;border:0;border-radius:12px;padding:11px 14px;background:var(--acc);color:#fff;cursor:pointer}
+  button.sec{background:var(--card2);border:1px solid var(--line)}
+  button.red{background:var(--red)} button.grn{background:var(--grn);color:#0b1b13}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:8px;align-items:center} .row>*{flex:1}
+  .hidden{display:none!important}
+  .center{text-align:center}
+  .mut{color:var(--mut);font-size:14px}
+  .big{font-size:22px;font-weight:700}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .pill{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+  .code{letter-spacing:4px;font-weight:800;color:var(--ylw)}
+  .player{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;background:var(--card2);margin-bottom:6px;position:relative}
+  .player.dead{opacity:.55} .player .nm{flex:1;font-weight:600}
+  .tag{font-size:12px;padding:2px 8px;border-radius:999px;background:#2d3358;color:var(--mut)}
+  .tag.role{background:#3a2f66;color:#d9d2ff} .tag.off{background:#4a2630;color:#ffb3bf}
+  .dots{width:36px;flex:none;padding:6px;background:transparent;color:var(--mut);font-size:20px}
+  .menu{position:absolute;left:8px;top:44px;z-index:5;background:#262c4d;border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:6px;min-width:150px;box-shadow:0 8px 24px #0008}
+  .target{display:block;width:100%;text-align:right;margin-bottom:6px;background:var(--card2);border:1px solid var(--line)}
+  .target.sel{border-color:var(--grn);background:#173a2c}
+  .night{background:linear-gradient(180deg,#141a3d,#0c0f24);text-align:center;padding:26px 14px}
+  .moon{font-size:56px}
+  .timer{font-size:34px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+  .announce{background:#2a2350;border:1px solid #4a3d99;border-radius:12px;padding:12px;margin-bottom:10px;text-align:center;font-weight:700}
+  .rolecard{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .rolecard .r{font-size:20px;font-weight:800;color:var(--ylw)}
+  .note{font-size:14px;color:#cfe8ff;background:#14304a;border-radius:10px;padding:8px 10px;margin-top:6px}
+  #chatBox{height:150px;overflow-y:auto;background:var(--card2);border-radius:12px;padding:8px;margin-bottom:8px;font-size:14px}
+  #chatBox div{margin-bottom:4px} #chatBox b{color:#b9b2ff}
+  #gear{position:fixed;bottom:14px;left:14px;width:52px;height:52px;border-radius:50%;font-size:24px;padding:0;z-index:20;box-shadow:0 6px 20px #0009}
+  .modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:50;padding:14px}
+  .modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;width:100%;max-width:430px;max-height:90vh;overflow:auto}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chk{display:flex;gap:10px;align-items:center;margin:8px 0} .chk input{width:auto;margin:0}
+  .err{color:#ff9aa8;font-size:14px;min-height:18px;margin:4px 0}
+  .win{font-size:26px;font-weight:800;text-align:center;margin:8px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px} td{padding:5px 4px;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<!-- الصفحة الرئيسية -->
+<div id="home" class="wrap hidden">
+  <div class="center" style="margin:30px 0 18px"><div style="font-size:60px">🕵️</div><h1>لعبة المافيا</h1><div class="mut">العبوا مع أصدقائكم وانتم في مكالمة</div></div>
+  <div class="card">
+    <label>اسمك</label>
+    <input id="nameIn" maxlength="16" placeholder="اكتب اسمك">
+    <button id="createBtn" style="width:100%">إنشاء غرفة جديدة (أنا المسؤول)</button>
+    <div class="center mut" style="margin:12px 0">أو</div>
+    <label>كود الغرفة</label>
+    <input id="codeIn" maxlength="4" placeholder="مثال: ABCD" style="text-transform:uppercase;text-align:center;letter-spacing:6px">
+    <button id="joinBtn" class="sec" style="width:100%">دخول الغرفة</button>
+    <div id="homeErr" class="err"></div>
+  </div>
+</div>
+
+<!-- اللعبة -->
+<div id="game" class="wrap hidden">
+  <div class="topbar">
+    <div class="pill">الغرفة: <span class="code" id="roomCode"></span></div>
+    <div class="pill" id="phaseLabel"></div>
+  </div>
+
+  <div id="roleCard" class="card hidden"></div>
+  <div id="main"></div>
+
+  <div class="card">
+    <h3>👥 اللاعبون <span class="mut" id="pcount"></span></h3>
+    <div id="players"></div>
+  </div>
+
+  <div class="card">
+    <h3>💬 الدردشة</h3>
+    <div id="chatBox"></div>
+    <div class="row"><input id="chatIn" maxlength="200" placeholder="اكتب رسالة…" style="margin:0;flex:4"><button id="chatBtn" style="flex:1">إرسال</button></div>
+    <div id="chatNote" class="mut" style="margin-top:6px"></div>
+  </div>
+</div>
+
+<button id="gear" class="hidden" title="إعدادات المسؤول">⚙️</button>
+
+<!-- نافذة الإعدادات -->
+<div id="modal" class="modal hidden"><div class="box" id="modalBox"></div></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PHASE = {lobby:'في الانتظار',night:'🌙 الليل',discussion:'🗣️ النقاش',voting:'🗳️ التصويت',voteResult:'📊 نتيجة التصويت',ended:'🏁 انتهت'};
+const socket = io();
+let cid = localStorage.getItem('cid');
+if (!cid) { cid = 'c' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('cid', cid); }
+let S = null, showRole = false, openMenu = null, adminCode = null, timeOffset = 0;
+
+/* ---------- الدخول ---------- */
+function show(id){ ['home','game'].forEach((x) => $(x).classList.toggle('hidden', x !== id)); }
+function enter(ack){
+  if (ack.error) { $('homeErr').textContent = ack.error; localStorage.removeItem('room'); show('home'); return; }
+  localStorage.setItem('room', ack.code); localStorage.setItem('name', $('nameIn').value.trim() || localStorage.getItem('name') || '');
+}
+$('nameIn').value = localStorage.getItem('name') || '';
+$('createBtn').onclick = () => socket.emit('create', { name: $('nameIn').value, cid }, enter);
+$('joinBtn').onclick = () => socket.emit('join', { code: $('codeIn').value, name: $('nameIn').value, cid }, enter);
+socket.on('connect', () => {
+  const r = localStorage.getItem('room');
+  if (r) socket.emit('join', { code: r, name: localStorage.getItem('name') || '', cid }, (a) => { if (a.error) { localStorage.removeItem('room'); S = null; render(); } });
+  else render();
+});
+socket.on('kicked', () => { localStorage.removeItem('room'); S = null; adminCode = null; closeModal(); render(); $('homeErr').textContent = 'تم طردك من الغرفة من قبل المسؤول'; });
+socket.on('state', (s) => { S = s; timeOffset = s.serverNow - Date.now(); render(); });
+
+/* ---------- العرض ---------- */
+function render(){
+  if (!S) { show('home'); $('gear').classList.add('hidden'); return; }
+  show('game');
+  $('roomCode').textContent = S.code;
+  $('phaseLabel').textContent = PHASE[S.phase] + (S.round && S.phase !== 'lobby' ? ` · الجولة ${S.round}` : '');
+  $('gear').classList.toggle('hidden', !S.you.isHost);
+  renderRole(); renderMain(); renderPlayers(); renderChat();
+}
+
+function renderRole(){
+  const c = $('roleCard');
+  if (!S.you.role || S.phase === 'lobby') { c.classList.add('hidden'); return; }
+  c.classList.remove('hidden');
+  c.innerHTML = `<div class="rolecard"><div><div class="mut">دورك</div><div class="r">${showRole ? esc(S.you.roleAr) : '••••••'}</div></div>
+    <button class="sec" id="toggleRole">${showRole ? 'إخفاء' : 'إظهار'}</button></div>` +
+    (showRole ? S.you.notes.map((n) => `<div class="note">🔎 ${esc(n)}</div>`).join('') : '');
+  $('toggleRole').onclick = () => { showRole = !showRole; renderRole(); };
+}
+
+function targetsHtml(list, selName, cls){
+  return list.map((t) => `<button class="target ${selName === t.name ? 'sel' : ''}" data-t="${t.cid}">${esc(t.name)}</button>`).join('');
+}
+
+function renderMain(){
+  const m = $('main'); const y = S.you; const host = y.isHost;
+  let h = '';
+  if (S.phase === 'lobby') {
+    const s = S.settings;
+    h += `<div class="card"><h3>إعدادات اللعبة</h3>
+      <div class="grid2"><div class="pill">🔪 مافيا: ${s.mafia}</div><div class="pill">💉 طبيب: ${s.doctor}</div>
+      <div class="pill">🔎 محقق: ${s.detective}</div><div class="pill">🙂 مواطن: ${s.citizen}</div></div>
+      <div class="mut" style="margin-top:10px">المطلوب ${S.needed} لاعبين · الموجودون الآن ${S.current}</div>
+      <div class="mut">النقاش: ${s.timerMode === 'none' ? 'بدون مؤقت داخل اللعبة (زر المسؤول)' : s.timerMode === 'manual' ? `مؤقت ${fmt(s.discussionSeconds)} وينتهي بزر المسؤول` : `مؤقت ${fmt(s.discussionSeconds)} ثم يبدأ التصويت تلقائياً`}</div>
+      <div class="mut">${s.hostPlays ? 'المسؤول يلعب' : 'المسؤول يشرف فقط ويشوف كل الأدوار'}</div></div>`;
+    if (host) {
+      const ok = S.current === S.needed;
+      h += `<button id="startBtn" style="width:100%" ${ok ? '' : 'disabled'}>▶️ ابدأ اللعبة</button>
+        <div id="startErr" class="err">${ok ? '' : `غيّر الإعدادات (⚙️) أو انتظر بقية اللاعبين — لازم يتطابق العدد`}</div>`;
+    } else h += `<div class="card center mut">بانتظار المسؤول يبدأ اللعبة…</div>`;
+  }
+
+  if (S.phase === 'night') {
+    const n = S.night || {};
+    if (!y.plays && host) {
+      h += `<div class="card night"><div class="moon">🌙</div><h2>الليل — عرض المسؤول</h2>
+        ${(n.god || []).map((g) => `<div class="note">${esc(g)}</div>`).join('') || '<div class="mut">لم يختر أحد بعد</div>'}
+        <button id="forceNight" class="sec" style="margin-top:12px">إنهاء الليل الآن</button></div>`;
+    } else if (n.kind && !n.done) {
+      const q = { mafia: '🔪 اختر من تقتله', doctor: '💉 اختر من تحميه', detective: '🔎 اختر من تكشف دوره' }[n.kind];
+      h += `<div class="card"><h3>${q}</h3>
+        ${n.kind === 'mafia' && n.mates.length ? `<div class="mut" style="margin-bottom:8px">زملاؤك: ${n.mates.map((x) => esc(x.name) + (x.pick ? ` (اختار ${esc(x.pick)})` : '')).join('، ')}</div>` : ''}
+        <div id="targets">${targetsHtml(n.targets, null)}</div></div>`;
+    } else if (n.kind && n.done) {
+      h += `<div class="card night"><div class="moon">✅</div><h3>تم اختيارك: ${esc(n.myPick)}</h3><div class="mut">انتظر بقية الأدوار…</div></div>`;
+    } else {
+      h += `<div class="card night"><div class="moon">😴</div><h2>أغلق عينيك</h2><div class="mut">${y.alive || !y.plays ? 'الليل… انتظر الصباح' : 'أنت خارج اللعبة، تابع المشاهدة'}</div></div>`;
+    }
+  }
+
+  if (S.phase === 'discussion') {
+    if (S.announcement) h += `<div class="announce">${esc(S.announcement)}</div>`;
+    h += `<div class="card">`;
+    if (S.timerEnds) h += `<div class="mut center">الوقت المتبقي للنقاش</div><div class="timer" id="timer">--:--</div>`;
+    else h += `<div class="center mut">🗣️ النقاش مفتوح — تكلموا في المكالمة</div>`;
+    if (S.settings.timerMode === 'manual') h += `<div class="mut center" id="timerNote"></div>`;
+    h += `</div>`;
+    if (host) h += `<button id="endDisc" class="grn" style="width:100%">🗳️ إنهاء النقاش وبدء التصويت</button>`;
+  }
+
+  if (S.phase === 'voting') {
+    const v = S.vote;
+    h += `<div class="card"><h3>🗳️ التصويت <span class="mut">(${v.voted}/${v.total})</span></h3>`;
+    if (v.canVote && !v.myVote) {
+      h += `<div id="voteTargets">${targetsHtml(v.targets, null)}<button class="target" data-t="skip" style="border-color:var(--ylw)">⏭️ سكب (لا أصوّت على أحد)</button></div>`;
+    } else if (v.myVote) {
+      h += `<div class="center">صوّتك: <b>${v.myVote === 'skip' ? 'سكب' : esc(v.myVote)}</b><div class="mut">انتظر بقية اللاعبين…</div></div>`;
+    } else h += `<div class="center mut">${y.plays ? 'أنت خارج اللعبة' : 'التصويت جارٍ'}</div>`;
+    h += `</div>`;
+    if (host) h += `<button id="forceVote" class="sec" style="width:100%">إنهاء التصويت الآن</button>`;
+  }
+
+  if (S.phase === 'voteResult' || (S.phase === 'ended' && S.voteResult)) {
+    const r = S.voteResult;
+    h += `<div class="card"><h3>📊 نتيجة التصويت</h3><table>
+      ${r.tally.map((t) => `<tr><td>${esc(t.name)}</td><td>${t.count} صوت</td></tr>`).join('')}
+      <tr><td>سكب</td><td>${r.skip}</td></tr></table>
+      <div class="announce" style="margin-top:10px">${r.eliminated ? `خرج ${esc(r.eliminated.name)}${r.eliminated.role ? ` (كان ${esc(r.eliminated.role)})` : ''}` : 'لم يخرج أحد'}</div>
+      ${S.phase === 'voteResult' ? '<div class="mut center">الليل يبدأ بعد لحظات…</div>' : ''}</div>`;
+  }
+
+  if (S.phase === 'ended') {
+    const w = S.winner === 'mafia';
+    h = (S.announcement && !S.voteResult ? `<div class="announce">${esc(S.announcement)}</div>` : '') + h;
+    h += `<div class="card"><div class="win" style="color:${w ? 'var(--red)' : 'var(--grn)'}">${w ? '🔪 فازت المافيا!' : '🎉 فاز المواطنون!'}</div>
+      ${S.players.filter((p) => p.plays).map((p) => `<div class="player ${p.alive ? '' : 'dead'}"><span class="nm">${esc(p.name)}</span><span class="tag role">${esc(p.roleAr || '')}</span></div>`).join('')}</div>`;
+    if (host) h += `<button id="again" style="width:100%">🔁 لعبة جديدة بنفس الغرفة</button>`;
+  }
+  m.innerHTML = h;
+
+  const on = (id, ev, fn) => { const e = $(id); if (e) e.onclick = fn; };
+  on('startBtn', 0, () => socket.emit('start', {}, (a) => { if (a && a.error) $('startErr').textContent = a.error; }));
+  on('forceNight', 0, () => socket.emit('forceNight'));
+  on('endDisc', 0, () => socket.emit('endDiscussion'));
+  on('forceVote', 0, () => socket.emit('forceVote'));
+  on('again', 0, () => socket.emit('playAgain'));
+  const nt = $('targets');
+  if (nt) nt.querySelectorAll('button').forEach((b) => b.onclick = () => socket.emit('nightPick', { target: b.dataset.t }));
+  const vt = $('voteTargets');
+  if (vt) vt.querySelectorAll('button').forEach((b) => b.onclick = () => socket.emit('vote', { target: b.dataset.t }));
+  tick();
+}
+
+function fmt(sec){ sec = Math.max(0, Math.round(sec)); return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); }
+function tick(){
+  const t = $('timer'); if (!t || !S || !S.timerEnds) return;
+  const left = (S.timerEnds - (Date.now() + timeOffset)) / 1000;
+  t.textContent = fmt(left);
+  t.style.color = left <= 10 ? 'var(--red)' : '';
+  const n = $('timerNote');
+  if (n) n.textContent = left <= 0 ? (S.you.isHost ? '⏰ انتهى الوقت — اضغط الزر لبدء التصويت' : '⏰ انتهى الوقت — بانتظار المسؤول') : '';
+}
+setInterval(tick, 500);
+
+function renderPlayers(){
+  const box = $('players');
+  const list = S.players.filter((p) => !p.left);
+  $('pcount').textContent = `(${list.length})`;
+  box.innerHTML = list.map((p) => `<div class="player ${p.plays && !p.alive ? 'dead' : ''}">
+      <span class="nm">${esc(p.name)} ${p.cid === S.you.cid ? '<span class="mut">(أنت)</span>' : ''}</span>
+      ${p.isHost ? '<span class="tag">👑 مسؤول</span>' : ''}
+      ${p.roleAr ? `<span class="tag role">${esc(p.roleAr)}</span>` : ''}
+      ${p.plays && !p.alive && S.phase !== 'lobby' ? '<span class="tag off">💀 خرج</span>' : ''}
+      ${p.muted ? '<span class="tag off">🔇 مكتوم</span>' : ''}
+      ${!p.connected ? '<span class="tag">⚠️ غير متصل</span>' : ''}
+      ${S.you.isHost && !p.isHost ? `<button class="dots" data-m="${p.cid}">⋮</button>` : ''}
+      ${openMenu === p.cid ? `<div class="menu"><button class="sec" data-act="mute" data-c="${p.cid}">${p.muted ? '🔊 إلغاء الكتم' : '🔇 كتم صوت'}</button><button class="red" data-act="kick" data-c="${p.cid}">🚪 طرد من الغرفة</button></div>` : ''}
+    </div>`).join('');
+  box.querySelectorAll('.dots').forEach((b) => b.onclick = (e) => { e.stopPropagation(); openMenu = openMenu === b.dataset.m ? null : b.dataset.m; renderPlayers(); });
+  box.querySelectorAll('.menu button').forEach((b) => b.onclick = (e) => {
+    e.stopPropagation();
+    const c = b.dataset.c;
+    if (b.dataset.act === 'mute') socket.emit('mute', { cid: c });
+    else if (confirm('تأكيد طرد اللاعب من الغرفة؟')) socket.emit('kick', { cid: c });
+    openMenu = null;
+  });
+}
+document.addEventListener('click', () => { if (openMenu) { openMenu = null; if (S) renderPlayers(); } });
+
+function renderChat(){
+  const b = $('chatBox'); const atBottom = b.scrollTop + b.clientHeight >= b.scrollHeight - 30;
+  b.innerHTML = S.chat.map((c) => `<div><b>${esc(c.name)}:</b> ${esc(c.text)}</div>`).join('');
+  if (atBottom) b.scrollTop = b.scrollHeight;
+  const blocked = S.you.muted ? '🔇 المسؤول كتم دردشتك.' : (S.phase === 'night' ? 'الدردشة مغلقة في الليل.' : (S.you.plays && !S.you.alive && S.phase !== 'lobby' && S.phase !== 'ended' ? 'اللاعبون الخارجون لا يكتبون.' : ''));
+  $('chatNote').textContent = blocked;
+  $('chatIn').disabled = $('chatBtn').disabled = !!blocked;
+}
+function sendChat(){ const v = $('chatIn').value.trim(); if (v) { socket.emit('chat', { text: v }); $('chatIn').value = ''; } }
+$('chatBtn').onclick = sendChat;
+$('chatIn').onkeydown = (e) => { if (e.key === 'Enter') sendChat(); };
+
+/* ---------- نافذة إعدادات المسؤول ---------- */
+function closeModal(){ $('modal').classList.add('hidden'); }
+$('modal').onclick = (e) => { if (e.target === $('modal')) closeModal(); };
+$('gear').onclick = () => {
+  $('modal').classList.remove('hidden');
+  if (adminCode) return settingsForm();
+  $('modalBox').innerHTML = `<h3>🔐 إعدادات المسؤول</h3><label>ادخل الرمز</label>
+    <input id="codeField" type="password" inputmode="numeric" placeholder="الرمز" style="text-align:center;letter-spacing:6px">
+    <div id="mErr" class="err"></div><div class="row"><button id="mOk">دخول</button><button class="sec" id="mCancel">إلغاء</button></div>`;
+  $('mCancel').onclick = closeModal;
+  const go = () => socket.emit('unlock', { code: $('codeField').value }, (a) => {
+    if (a.error) $('mErr').textContent = a.error; else { adminCode = $('codeField').value; settingsForm(); }
+  });
+  $('mOk').onclick = go; $('codeField').onkeydown = (e) => { if (e.key === 'Enter') go(); };
+  $('codeField').focus();
+};
+function settingsForm(){
+  const s = S.settings;
+  $('modalBox').innerHTML = `<h3>⚙️ إعدادات اللعبة</h3>
+    <div class="grid2">
+      <div><label>🔪 المافيا</label><input id="sM" type="number" min="1" max="6" value="${s.mafia}"></div>
+      <div><label>🙂 المواطنون</label><input id="sC" type="number" min="0" max="20" value="${s.citizen}"></div>
+      <div><label>💉 الأطباء</label><input id="sD" type="number" min="0" max="2" value="${s.doctor}"></div>
+      <div><label>🔎 المحققون</label><input id="sT" type="number" min="0" max="2" value="${s.detective}"></div>
+    </div>
+    <div class="mut" id="sTotal"></div>
+    <label>وقت النقاش (كل يوم)</label>
+    <select id="sMode">
+      <option value="none" ${s.timerMode === 'none' ? 'selected' : ''}>بدون مؤقت داخل اللعبة (أنا أتحكم بالوقت وأضغط الزر)</option>
+      <option value="manual" ${s.timerMode === 'manual' ? 'selected' : ''}>مؤقت يظهر، وإذا خلص ما يحصل شي — أنا أضغط زر بدء التصويت</option>
+      <option value="auto" ${s.timerMode === 'auto' ? 'selected' : ''}>مؤقت وإذا خلص يبدأ التصويت تلقائياً</option>
+    </select>
+    <div id="secBox"><label>مدة النقاش</label>
+      <div class="grid2"><input id="sMin" type="number" min="0" max="60" value="${Math.floor(s.discussionSeconds / 60)}" placeholder="دقائق"><input id="sSec" type="number" min="0" max="59" value="${s.discussionSeconds % 60}" placeholder="ثواني"></div>
+      <div class="mut" style="margin-top:-4px">دقائق : ثواني</div></div>
+    <div class="chk"><input id="sHP" type="checkbox" ${s.hostPlays ? 'checked' : ''}><span>المسؤول يلعب معنا (وإلا يشرف فقط ويشوف كل الأدوار)</span></div>
+    <div class="chk"><input id="sRV" type="checkbox" ${s.revealRoles ? 'checked' : ''}><span>إظهار دور اللاعب عند خروجه</span></div>
+    <div id="mErr" class="err"></div>
+    <div class="row"><button id="mSave" class="grn">حفظ</button><button class="sec" id="mCancel">إغلاق</button></div>`;
+  const upd = () => {
+    const t = ['sM', 'sC', 'sD', 'sT'].reduce((a, i) => a + (parseInt($(i).value, 10) || 0), 0);
+    $('sTotal').textContent = `المجموع: ${t} لاعبين (لازم يطابق عدد اللاعبين الموجودين${$('sHP').checked ? ' مع المسؤول' : ' بدون المسؤول'})`;
+    $('secBox').classList.toggle('hidden', $('sMode').value === 'none');
+  };
+  ['sM', 'sC', 'sD', 'sT', 'sMode', 'sHP'].forEach((i) => $(i).oninput = upd); upd();
+  $('mCancel').onclick = closeModal;
+  $('mSave').onclick = () => {
+    const secs = (parseInt($('sMin').value, 10) || 0) * 60 + (parseInt($('sSec').value, 10) || 0);
+    socket.emit('settings', { code: adminCode, settings: {
+      mafia: $('sM').value, citizen: $('sC').value, doctor: $('sD').value, detective: $('sT').value,
+      timerMode: $('sMode').value, discussionSeconds: Math.max(10, secs),
+      hostPlays: $('sHP').checked, revealRoles: $('sRV').checked } }, (a) => {
+      if (a.error) $('mErr').textContent = a.error; else closeModal();
+    });
+  };
+}
+render();
+</script>
+</body>
+</html>
